@@ -1,0 +1,101 @@
+package archivos;
+
+//IMPORTAMOS LAS CLASES NECESARIAS PARA GESTIONAR ARCHIVOS
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
+import java.util.List;
+//IMPORTAMOS ARRAYLIST PARA CREAR LISTAS
+import java.util.ArrayList;
+
+public class GestionEstado 
+{
+	// INDICAMOS LA RUTA DE LA CARPETA COMPARTIDA
+	private Path carpetaCompartida = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red");
+
+	// INDICAMOS LA RUTA DEL ARCHIVO DE ESTADO
+	private Path archivoEstado = carpetaCompartida.resolve("estado.txt");
+
+	// METODO PARA CONSULTAR EL ESTADO DE LA PARTIDA
+	public void consultarEstado() 
+	{
+
+	    // LEEMOS TODAS LAS LINEAS DEL ARCHIVO DE ESTADO
+	    try {
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // MOSTRAMOS EL CONTENIDO POR CONSOLA
+	        for (String linea : estado) {
+	            System.out.println(linea);
+	        }
+
+	    } catch (IOException e) {
+	        System.out.println("Error al consultar el estado de la partida.");
+	    }
+	}
+	
+	// METODO PARA OBTENER EL ESTADO ACTUAL DE LA PARTIDA
+	public String obtenerEstado()
+	{
+	    // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	    try
+	    {
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // DEVOLVEMOS EL ESTADO DE LA PARTIDA
+	        return estado.get(0).split("=")[1];
+
+	    } catch (IOException e) {
+	        System.out.println("Error al leer el estado de la partida.");
+	        return "ERROR";
+	    }
+	}
+	
+	// METODO PARA ACTUALIZAR EL ESTADO DE LA PARTIDA
+	public void actualizarEstado() 
+	{
+		// CREAMOS UNA LISTA PARA GUARDAR LOS DATOS DE LA PARTIDA
+		List<String> estado = new ArrayList<>();
+
+		// INDICAMOS QUE LA PARTIDA ESTA ESPERANDO A SER INICIADA
+		estado.add("ESTADO=ESPERANDO");
+
+		// INDICAMOS QUE TODAVIA NO HA SALIDO NINGUN NUMERO
+		estado.add("NUMERO_ACTUAL=0");
+		estado.add("NUMEROS_SALIDOS=");
+		
+		// INTENTAMOS GUARDAR LOS DATOS EN EL ARCHIVO
+		try 
+		{
+
+		    // ESCRIBIMOS LA LISTA EN EL ARCHIVO DE ESTADO
+		    Files.write(archivoEstado, estado);
+
+		} catch (IOException e) 
+		{
+		    // MOSTRAMOS UN MENSAJE SI SE PRODUCE UN ERROR
+		    System.out.println("Error al actualizar el estado de la partida.");
+		}
+
+	}
+	
+	// METODO PARA INICIAR LA PARTIDA
+	public void iniciarPartida()
+	{
+	    // LEEMOS LOS DATOS ACTUALES DEL ESTADO
+	    try
+	    {
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // CAMBIAMOS EL ESTADO DE LA PARTIDA
+	        estado.set(0, "ESTADO=EN_CURSO");
+
+	        // GUARDAMOS LOS CAMBIOS EN EL ARCHIVO
+	        Files.write(archivoEstado, estado);
+
+	    } catch (IOException e) {
+	        System.out.println("Error al iniciar la partida.");
+	    }
+	}
+}
