@@ -28,8 +28,8 @@ public class GestionJugadores
 	        int numeroJugador = jugadores.size() + 1;
 	        String idJugador = "jugador" + numeroJugador;
 
-	        // PREPARAMOS LOS DATOS DEL NUEVO JUGADOR
-	        String nuevoJugador = idJugador + ";" + nombre + ";;ACTIVO;NO;NO";
+	     // PREPARAMOS LOS DATOS DEL NUEVO JUGADOR
+	        String nuevoJugador = idJugador + ";" + nombre + ";;;ACTIVO;NO;NO";
 
 	        // AÑADIMOS EL NUEVO JUGADOR A LA LISTA
 	        jugadores.add(nuevoJugador);
@@ -160,6 +160,9 @@ public class GestionJugadores
 		    }
 		 // GUARDAMOS LOS NUMEROS DEL CARTON EN LOS DATOS DEL JUGADOR
 		    datos[2] = numerosCarton;
+		 // INICIALIZAMOS LAS 12 CASILLAS COMO NO MARCADAS
+		    datos[3] = "000000000000";
+		    
 		    jugadores.set(i, String.join(";", datos));
 
 		}
@@ -172,6 +175,63 @@ public class GestionJugadores
 		    System.out.println("Error al guardar los cartones.");
 		    return;
 		}
+	}
+	
+	// METODO PARA GUARDAR LAS CASILLAS MARCADAS DE UN JUGADOR
+	public void guardarMarcas(String nombre, Carton carton)
+	{
+		// LEEMOS LOS JUGADORES DEL ARCHIVO
+		try
+		{
+		    List<String> jugadores = Files.readAllLines(archivoJugadores);
+		 // RECORREMOS LOS JUGADORES REGISTRADOS
+		    for (int i = 0; i < jugadores.size(); i++)
+		    {
+		        // SEPARAMOS LOS DATOS DEL JUGADOR ACTUAL
+		        String[] datos = jugadores.get(i).split(";");
+
+		        // COMPROBAMOS SI ES EL JUGADOR QUE BUSCAMOS
+		        if (datos[1].equals(nombre))
+		        {
+		        	// CREAMOS UNA CADENA PARA GUARDAR LAS MARCAS
+		        	String marcas = "";
+		        	// RECORREMOS LAS FILAS DEL CARTON
+		        	for (int fila = 0; fila < Carton.FILAS; fila++)
+		        	{
+		        	    // RECORREMOS LAS COLUMNAS DEL CARTON
+		        	    for (int col = 0; col < Carton.COLS; col++)
+		        	    {
+		        	    	// COMPROBAMOS SI LA CASILLA ESTA MARCADA
+		        	    	if (carton.estaMarcado(fila, col))
+		        	    	{
+		        	    	    // GUARDAMOS UN 1 SI ESTA MARCADA
+		        	    	    marcas = marcas + "1";
+		        	    	}
+		        	    	else
+		        	    	{
+		        	    	    // GUARDAMOS UN 0 SI NO ESTA MARCADA
+		        	    	    marcas = marcas + "0";
+		        	    	}
+
+		        	    }
+		        	}
+		        	// GUARDAMOS LAS MARCAS EN LOS DATOS DEL JUGADOR
+		        	datos[3] = marcas;
+		        	// ACTUALIZAMOS LOS DATOS DEL JUGADOR EN LA LISTA
+		        	jugadores.set(i, String.join(";", datos));
+		        	break;
+		        }
+		    }
+		    
+		 // GUARDAMOS LOS CAMBIOS EN EL ARCHIVO
+		    Files.write(archivoJugadores, jugadores);
+
+		} catch (IOException e) {
+		    System.out.println("Error al guardar las marcas.");
+		    return;
+		}
+		
+
 	}
 	
 	// METODO PARA RECUPERAR EL CARTON DE UN JUGADOR
@@ -194,6 +254,8 @@ public class GestionJugadores
 		        {
 		        	// SEPARAMOS LOS NUMEROS DEL CARTON
 		        	String[] numeros = datos[2].split(",");
+		        	// RECUPERAMOS LAS MARCAS DEL CARTON
+		        	String marcas = datos[3];
 		        	// CREAMOS UN NUEVO OBJETO CARTON
 		        	Carton carton = new Carton();
 
@@ -210,6 +272,12 @@ public class GestionJugadores
 
 		        	    	// GUARDAMOS EL NUMERO EN LA POSICION CORRESPONDIENTE
 		        	    	carton.guardarNumero(fila, col, numero);
+		        	    	// COMPROBAMOS SI LA CASILLA ESTABA MARCADA
+		        	    	if (marcas.charAt(contador) == '1')
+		        	    	{
+		        	    	    // RESTAURAMOS LA MARCA DE LA CASILLA
+		        	    	    carton.restaurarMarca(fila, col);
+		        	    	}
 
 		        	    	// PASAMOS AL SIGUIENTE NUMERO
 		        	    	contador++;

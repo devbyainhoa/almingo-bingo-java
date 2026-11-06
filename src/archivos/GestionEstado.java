@@ -38,18 +38,65 @@ public class GestionEstado
 	// METODO PARA OBTENER EL ESTADO ACTUAL DE LA PARTIDA
 	public String obtenerEstado()
 	{
-	    // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
 	    try
 	    {
 	        List<String> estado = Files.readAllLines(archivoEstado);
-
-	        // DEVOLVEMOS EL ESTADO DE LA PARTIDA
 	        return estado.get(0).split("=")[1];
-
-	    } catch (IOException e) {
-	        System.out.println("Error al leer el estado de la partida.");
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al recuperar el estado.");
 	        return "ERROR";
 	    }
+	}
+
+	
+	// METODO PARA OBTENER LOS NUMEROS EXTRAIDOS
+	public List<Integer> obtenerNumerosSalidos()
+	{
+	    // CREAMOS UNA LISTA PARA GUARDAR LOS NUMEROS EXTRAIDOS
+	    List<Integer> numerosSalidos = new ArrayList<>();
+
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // RECORREMOS LAS LINEAS DEL ARCHIVO
+	        for (String linea : estado)
+	        {
+	            // COMPROBAMOS SI ES LA LINEA DE LOS NUMEROS EXTRAIDOS
+	            if (linea.startsWith("NUMEROS_SALIDOS="))
+	            {
+	                // OBTENEMOS LOS NUMEROS EXTRAIDOS
+	                String numeros = linea.split("=")[1];
+
+	                // COMPROBAMOS SI HAY NUMEROS EXTRAIDOS
+	                if (!numeros.isEmpty())
+	                {
+	                    // SEPARAMOS LOS NUMEROS UTILIZANDO LAS COMAS
+	                    String[] listaNumeros = numeros.split(",");
+
+	                    // RECORREMOS LOS NUMEROS
+	                    for (String numero : listaNumeros)
+	                    {
+	                        // CONVERTIMOS CADA NUMERO A ENTERO Y LO AÑADIMOS A LA LISTA
+	                        numerosSalidos.add(Integer.parseInt(numero));
+	                    }
+	                }
+
+	                // SALIMOS DEL BUCLE CUANDO ENCONTRAMOS LA LINEA
+	                break;
+	            }
+	        }
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al recuperar los numeros extraidos.");
+	    }
+
+	    // DEVOLVEMOS LA LISTA DE NUMEROS
+	    return numerosSalidos;
 	}
 	
 	// METODO PARA ACTUALIZAR EL ESTADO DE LA PARTIDA

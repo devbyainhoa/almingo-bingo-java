@@ -199,6 +199,19 @@ public class Carton
 	    // GUARDAMOS EL NUMERO EN LA POSICION INDICADA
 	    carton[fila][col] = numero;
 	}
+	
+	// COMPROBAMOS SI UNA CASILLA ESTA MARCADA
+	public boolean estaMarcado(int fila, int col)
+	{
+	    return numMarcado[fila][col];
+	    
+	}
+	// RESTAURAMOS EL ESTADO DE UNA CASILLA
+	public void restaurarMarca(int fila, int col)
+	{
+	    // INDICAMOS QUE LA CASILLA ESTA MARCADA
+	    numMarcado[fila][col] = true;
+	}
 }
 
 

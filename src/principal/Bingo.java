@@ -1,6 +1,7 @@
 package principal;
 
 import java.util.Scanner;
+import java.util.List;
 //IMPORTAMOS LA CLASE PARA GESTIONAR LOS JUGADORES
 import archivos.GestionJugadores; 
 //IMPORTAMOS LA CLASE PARA GESTIONAR EL ESTADO DE LA PARTIDA
@@ -192,24 +193,42 @@ public class Bingo {
 		    // COMPROBAMOS LA OPCION SELECCIONADA
 		    switch (opcion) 
 		    {
-		        case 1:
-		        	 // PEDIMOS AL JUGADOR EL NUMERO QUE QUIERE MARCAR
-		            System.out.println("Introduce el numero que quieres marcar:");
+		    case 1:
 
-		            // GUARDAMOS EL NUMERO INTRODUCIDO
-		            int numero = teclado.nextInt();
-		         // COMPROBAMOS SI EL NUMERO ESTA EN EL CARTON Y LO MARCAMOS
+		        // PEDIMOS AL JUGADOR EL NUMERO QUE QUIERE MARCAR
+		        System.out.println("Introduce el numero que quieres marcar:");
+
+		        // GUARDAMOS EL NUMERO INTRODUCIDO
+		        int numero = teclado.nextInt();
+
+		        // RECUPERAMOS LOS NUMEROS QUE HAN SIDO EXTRAIDOS
+		        List<Integer> numerosSalidos = gestionEstado.obtenerNumerosSalidos();
+
+		        // COMPROBAMOS SI EL NUMERO HA SIDO EXTRAIDO
+		        if (numerosSalidos.contains(numero))
+		        {
+		            // COMPROBAMOS SI EL NUMERO ESTA EN EL CARTON Y LO MARCAMOS
 		            if (miCarton.marcarNum(numero))
 		            {
 		                System.out.println("Numero marcado correctamente.");
+
+		                // GUARDAMOS LAS CASILLAS MARCADAS DEL JUGADOR
+		                gestion.guardarMarcas(nombreJugador, miCarton);
 		            }
 		            else
 		            {
 		                System.out.println("Ese numero no esta en tu carton o ya esta marcado.");
 		            }
-		         // MOSTRAMOS EL CARTON ACTUALIZADO
-		            miCarton.mostrarCarton();
-		            break;
+		        }
+		        else
+		        {
+		            System.out.println("Ese numero todavia no ha salido.");
+		        }
+
+		        // MOSTRAMOS EL CARTON ACTUALIZADO
+		        miCarton.mostrarCarton();
+
+		        break;
 
 		        case 2:
 		            System.out.println("Cantar linea.");
