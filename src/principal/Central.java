@@ -1,6 +1,8 @@
 package principal;
 
 import java.util.Scanner;
+//IMPORTAMOS LA CLASE PARA REALIZAR EL SORTEO
+import logica.Sorteo;
 
 // IMPORTAMOS LA CLASE PARA GESTIONAR LOS JUGADORES
 import archivos.GestionJugadores;
@@ -13,130 +15,157 @@ import logica.Carton;
 
 public class Central
 {
-    // METODO PRINCIPAL PARA EJECUTAR EL PROGRAMA CENTRAL
-    public static void main(String[] args)
-    {
-        Scanner teclado = new Scanner(System.in);
+	// METODO PRINCIPAL PARA EJECUTAR EL PROGRAMA CENTRAL
+	public static void main(String[] args)
+	{
+		Scanner teclado = new Scanner(System.in);
 
-        // MOSTRAMOS EL MENU CENTRAL
-        menuCentral(teclado);
-    }
+		// MOSTRAMOS EL MENU CENTRAL
+		menuCentral(teclado);
+	}
 
-    // METODO PARA MOSTRAR EL MENU DEL ADMINISTRADOR
-    public static void menuCentral(Scanner teclado)
-    {
-        int opcion = 0;
+	// METODO PARA MOSTRAR EL MENU DEL ADMINISTRADOR
+	public static void menuCentral(Scanner teclado)
+	{
+		int opcion = 0;
 
-        // CREAMOS UN OBJETO PARA GESTIONAR LOS JUGADORES
-        GestionJugadores gestion = new GestionJugadores();
+		// CREAMOS UN OBJETO PARA GESTIONAR LOS JUGADORES
+		GestionJugadores gestion = new GestionJugadores();
 
-        // CREAMOS UN OBJETO PARA GESTIONAR EL ESTADO DE LA PARTIDA
-        GestionEstado gestionEstado = new GestionEstado();
+		// CREAMOS UN OBJETO PARA GESTIONAR EL ESTADO DE LA PARTIDA
+		GestionEstado gestionEstado = new GestionEstado();
 
-        // REPETIMOS EL MENU HASTA QUE EL ADMINISTRADOR ELIJA SALIR
-        while (opcion != 3)
-        {
-            // MOSTRAMOS LAS OPCIONES DEL ADMINISTRADOR
-            System.out.println("===== MODO CENTRAL =====");
-            System.out.println("1. CONSULTAR JUGADORES REGISTRADOS");
-            System.out.println("2. INICIAR PARTIDA");
-            System.out.println("3. SALIR");
-            System.out.println("Selecciona una opcion o pulse 3 para salir del menu:");
+		// CREAMOS UN OBJETO PARA GESTIONAR EL SORTEO
+		Sorteo sorteo = new Sorteo();
 
-            opcion = teclado.nextInt();
+		// REPETIMOS EL MENU HASTA QUE EL ADMINISTRADOR ELIJA SALIR
+		while (opcion != 3)
+		{
+			// MOSTRAMOS LAS OPCIONES DEL ADMINISTRADOR
+			System.out.println("===== MODO CENTRAL =====");
+			System.out.println("1. CONSULTAR JUGADORES REGISTRADOS");
+			System.out.println("2. INICIAR PARTIDA");
+			System.out.println("3. SALIR");
+			System.out.println("Selecciona una opcion o pulse 3 para salir del menu:");
 
-            // COMPROBAMOS LA OPCION ELEGIDA
-            switch (opcion)
-            {
-                case 1:
+			opcion = teclado.nextInt();
 
-                    // CONSULTAMOS LOS JUGADORES REGISTRADOS
-                    gestion.consultarJugadores();
-                    break;
+			// COMPROBAMOS LA OPCION ELEGIDA
+			switch (opcion)
+			{
+			case 1:
 
-                case 2:
+				// CONSULTAMOS LOS JUGADORES REGISTRADOS
+				gestion.consultarJugadores();
+				break;
 
-                    // COMPROBAMOS CUANTOS JUGADORES ESTAN REGISTRADOS
-                    int cantidadJugadores = gestion.contarJugadores();
+			case 2:
 
-                    // COMPROBAMOS SI HAY AL MENOS DOS JUGADORES
-                    if (cantidadJugadores < 2)
-                    {
-                        System.out.println("Se necesitan al menos 2 jugadores para iniciar la partida.");
-                    }
-                    else
-                    {
-                        System.out.println("Hay suficientes jugadores. Preparando la partida...");
+				// COMPROBAMOS CUANTOS JUGADORES ESTAN REGISTRADOS
+				int cantidadJugadores = gestion.contarJugadores();
 
-                        // PREPARAMOS EL ESTADO INICIAL DE LA PARTIDA
-                        gestionEstado.actualizarEstado();
+				// COMPROBAMOS SI HAY AL MENOS DOS JUGADORES
+				if (cantidadJugadores < 2)
+				{
+					System.out.println("Se necesitan al menos 2 jugadores para iniciar la partida.");
+				}
+				else
+				{
+					System.out.println("Hay suficientes jugadores. Preparando la partida...");
 
-                        // CREAMOS UN ARRAY PARA GUARDAR LOS CARTONES
-                        Carton[] cartones = new Carton[cantidadJugadores];
+					// PREPARAMOS EL ESTADO INICIAL DE LA PARTIDA
+					gestionEstado.actualizarEstado();
 
-                        // RECORREMOS EL ARRAY DE CARTONES
-                        for (int i = 0; i < cantidadJugadores; i++)
-                        {
-                            // INDICAMOS SI EL CARTON CUMPLE LAS CONDICIONES
-                            boolean cartonValido = false;
+					// CREAMOS UN ARRAY PARA GUARDAR LOS CARTONES
+					Carton[] cartones = new Carton[cantidadJugadores];
 
-                            // REPETIMOS LA GENERACION HASTA OBTENER UN CARTON VALIDO
-                            while (!cartonValido)
-                            {
-                                // CREAMOS UN NUEVO OBJETO CARTON
-                                cartones[i] = new Carton();
+					// RECORREMOS EL ARRAY DE CARTONES
+					for (int i = 0; i < cantidadJugadores; i++)
+					{
+						// INDICAMOS SI EL CARTON CUMPLE LAS CONDICIONES
+						boolean cartonValido = false;
 
-                                // GENERAMOS LOS NUMEROS DEL CARTON
-                                cartones[i].llenarCarton();
+						// REPETIMOS LA GENERACION HASTA OBTENER UN CARTON VALIDO
+						while (!cartonValido)
+						{
+							// CREAMOS UN NUEVO OBJETO CARTON
+							cartones[i] = new Carton();
 
-                                // DE MOMENTO CONSIDERAMOS QUE EL CARTON ES VALIDO
-                                cartonValido = true;
+							// GENERAMOS LOS NUMEROS DEL CARTON
+							cartones[i].llenarCarton();
 
-                                // COMPROBAMOS LOS CARTONES GENERADOS ANTERIORMENTE
-                                for (int j = 0; j < i; j++)
-                                {
-                                    // COMPROBAMOS SI CUMPLE LA DIFERENCIA MINIMA
-                                    if (!cartones[i].cumpleDiferencia(cartones[j]))
-                                    {
-                                        // INDICAMOS QUE EL CARTON NO ES VALIDO
-                                        cartonValido = false;
-                                    }
-                                }
-                            }
-                        }
+							// DE MOMENTO CONSIDERAMOS QUE EL CARTON ES VALIDO
+							cartonValido = true;
 
-                        // MOSTRAMOS LOS CARTONES GENERADOS
-                        for (int i = 0; i < cantidadJugadores; i++)
-                        {
-                            System.out.println("CARTON DEL JUGADOR " + (i + 1));
+							// COMPROBAMOS LOS CARTONES GENERADOS ANTERIORMENTE
+							for (int j = 0; j < i; j++)
+							{
+								// COMPROBAMOS SI CUMPLE LA DIFERENCIA MINIMA
+								if (!cartones[i].cumpleDiferencia(cartones[j]))
+								{
+									// INDICAMOS QUE EL CARTON NO ES VALIDO
+									cartonValido = false;
+								}
+							}
+						}
+					}
 
-                            cartones[i].mostrarCarton();
+					// MOSTRAMOS LOS CARTONES GENERADOS
+					for (int i = 0; i < cantidadJugadores; i++)
+					{
+						System.out.println("CARTON DEL JUGADOR " + (i + 1));
 
-                            System.out.println("--------------------");
-                        }
+						cartones[i].mostrarCarton();
 
-                        // GUARDAMOS LOS CARTONES EN EL ARCHIVO COMPARTIDO
-                        gestion.guardarCartones(cartones);
+						System.out.println("--------------------");
+					}
 
-                        // INICIAMOS LA PARTIDA CUANDO LOS CARTONES ESTAN PREPARADOS
-                        gestionEstado.iniciarPartida();
+					// GUARDAMOS LOS CARTONES EN EL ARCHIVO COMPARTIDO
+					gestion.guardarCartones(cartones);
 
-                        System.out.println("¡LA PARTIDA HA COMENZADO!");
-                    }
+					// INICIAMOS LA PARTIDA CUANDO LOS CARTONES ESTAN PREPARADOS
+					gestionEstado.iniciarPartida();
 
-                    break;
+					System.out.println("¡LA PARTIDA HA COMENZADO!");
+					// LIMPIAMOS EL SALTO DE LINEA PENDIENTE DEL TECLADO
+					teclado.nextLine();
+					// REPETIMOS EL SORTEO HASTA EXTRAER LOS 45 NUMEROS
+					while (true)
+					{
+						//PEDIMOS QUE SAQUE EL NUMERO
+						System.out.println("Pulsa ENTER para extraer el siguiente numero...");
+						teclado.nextLine();
+						// EXTRAEMOS UN NUMERO DEL SORTEO
+						int numero = sorteo.extraerNumero();
+						// COMPROBAMOS SI YA SE HAN EXTRAIDO TODOS LOS NUMEROS
+						if (numero == -1)
+						{
+							System.out.println("¡SE HAN EXTRAIDO LOS 45 NUMEROS!");
+							System.out.println("EL SORTEO HA FINALIZADO.");
+							break;
+						}
+						// GUARDAMOS EL NUMERO EXTRAIDO EN EL ARCHIVO COMPARTIDO
+						gestionEstado.actualizarNumero(numero);
+						
+						// MOSTRAMOS EL NUMERO EXTRAIDO POR CONSOLA
+						System.out.println("NUMERO EXTRAIDO: " + numero);
 
-                case 3:
+					}
+				}
 
-                    System.out.println("SALIENDO DEL PROGRAMA...");
-                    break;
+				break;
 
-                default:
+			case 3:
 
-                    // AVISAMOS SI LA OPCION NO ES VALIDA
-                    System.out.println("Opcion no valida. Intentalo de nuevo.");
-                    break;
-            }
-        }
-    }
+				System.out.println("SALIENDO DEL PROGRAMA...");
+				break;
+
+			default:
+
+				// AVISAMOS SI LA OPCION NO ES VALIDA
+				System.out.println("Opcion no valida. Intentalo de nuevo.");
+				break;
+			}
+		}
+	}
 }

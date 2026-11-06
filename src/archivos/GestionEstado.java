@@ -145,4 +145,36 @@ public class GestionEstado
 	        System.out.println("Error al iniciar la partida.");
 	    }
 	}
+	// METODO PARA ACTUALIZAR LOS NUMEROS DEL SORTEO
+	public void actualizarNumero(int numero)
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS ACTUALES DEL ARCHIVO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // ACTUALIZAMOS EL ULTIMO NUMERO EXTRAIDO
+	        estado.set(1, "NUMERO_ACTUAL=" + numero);
+
+	        // COMPROBAMOS SI ES EL PRIMER NUMERO DEL SORTEO
+	        if (estado.get(2).equals("NUMEROS_SALIDOS="))
+	        {
+	            // GUARDAMOS EL PRIMER NUMERO EXTRAIDO
+	            estado.set(2, "NUMEROS_SALIDOS=" + numero);
+
+	        } else {
+
+	            // AÑADIMOS EL NUEVO NUMERO AL HISTORIAL
+	            estado.set(2, estado.get(2) + "," + numero);
+	        }
+
+	        // GUARDAMOS LOS CAMBIOS EN EL ARCHIVO
+	        Files.write(archivoEstado, estado);
+
+	    } catch (IOException e) {
+
+	        // MOSTRAMOS UN MENSAJE EN CASO DE ERROR
+	        System.out.println("Error al actualizar los numeros del sorteo.");
+	    }
+	}
 }
