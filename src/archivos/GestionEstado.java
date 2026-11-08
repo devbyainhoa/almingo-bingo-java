@@ -13,7 +13,6 @@ public class GestionEstado
 {
 	// INDICAMOS LA RUTA DE LA CARPETA COMPARTIDA
 	private Path carpetaCompartida = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red");
-
 	// INDICAMOS LA RUTA DEL ARCHIVO DE ESTADO
 	private Path archivoEstado = carpetaCompartida.resolve("estado.txt");
 
@@ -49,6 +48,53 @@ public class GestionEstado
 	        return "ERROR";
 	    }
 	}
+	
+	// METODO PARA OBTENER EL RESULTADO DE LA PARTIDA
+	public String obtenerResultado()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // RECORREMOS LAS LINEAS DEL ARCHIVO
+	        for (String linea : estado)
+	        {
+	            // COMPROBAMOS SI ES LA LINEA DEL RESULTADO
+	            if (linea.startsWith("RESULTADO="))
+	            {
+	                // DEVOLVEMOS EL RESULTADO
+	                return linea.substring("RESULTADO=".length());
+	            }
+	        }
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al recuperar el resultado.");
+	    }
+
+	    return "";
+	}
+
+	// METODO PARA COMPROBAR SI EXISTE EL ARCHIVO DE ESTADO
+	public void inicializarEstadoSiNecesario()
+	{
+	    try
+	    {
+	        // COMPROBAMOS SI EL ARCHIVO NO EXISTE O ESTA VACIO
+	        if (!Files.exists(archivoEstado) || Files.size(archivoEstado) == 0)
+	        {
+	            // INICIALIZAMOS EL ESTADO DE LA PARTIDA
+	            actualizarEstado();
+	        }
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al comprobar el archivo de estado.");
+	    }
+	}
+
 
 	
 	// METODO PARA OBTENER LOS NUMEROS EXTRAIDOS
@@ -69,8 +115,7 @@ public class GestionEstado
 	            if (linea.startsWith("NUMEROS_SALIDOS="))
 	            {
 	                // OBTENEMOS LOS NUMEROS EXTRAIDOS
-	                String numeros = linea.split("=")[1];
-
+	            	String numeros = linea.substring("NUMEROS_SALIDOS=".length());
 	                // COMPROBAMOS SI HAY NUMEROS EXTRAIDOS
 	                if (!numeros.isEmpty())
 	                {
@@ -102,29 +147,37 @@ public class GestionEstado
 	// METODO PARA ACTUALIZAR EL ESTADO DE LA PARTIDA
 	public void actualizarEstado() 
 	{
-		// CREAMOS UNA LISTA PARA GUARDAR LOS DATOS DE LA PARTIDA
-		List<String> estado = new ArrayList<>();
+	    // CREAMOS UNA LISTA PARA GUARDAR LOS DATOS DE LA PARTIDA
+	    List<String> estado = new ArrayList<>();
 
-		// INDICAMOS QUE LA PARTIDA ESTA ESPERANDO A SER INICIADA
-		estado.add("ESTADO=ESPERANDO");
+	    // INDICAMOS QUE LA PARTIDA ESTA ESPERANDO A SER INICIADA
+	    estado.add("ESTADO=ESPERANDO");
 
-		// INDICAMOS QUE TODAVIA NO HA SALIDO NINGUN NUMERO
-		estado.add("NUMERO_ACTUAL=0");
-		estado.add("NUMEROS_SALIDOS=");
-		
-		// INTENTAMOS GUARDAR LOS DATOS EN EL ARCHIVO
-		try 
-		{
+	    // INDICAMOS QUE TODAVIA NO HA SALIDO NINGUN NUMERO
+	    estado.add("NUMERO_ACTUAL=0");
+	    estado.add("NUMEROS_SALIDOS=");
 
-		    // ESCRIBIMOS LA LISTA EN EL ARCHIVO DE ESTADO
-		    Files.write(archivoEstado, estado);
+	    // INICIALIZAMOS EL RESULTADO DE LA PARTIDA
+	    estado.add("RESULTADO=");
 
-		} catch (IOException e) 
-		{
-		    // MOSTRAMOS UN MENSAJE SI SE PRODUCE UN ERROR
-		    System.out.println("Error al actualizar el estado de la partida.");
-		}
+	    // INICIALIZAMOS LAS SOLICITUDES DE LOS JUGADORES
+	    estado.add("SOLICITUD_LINEA=");
+	    estado.add("SOLICITUD_BINGO=");
 
+	    // INDICAMOS QUE TODAVIA NO SE HA CANTADO LINEA
+	    estado.add("LINEA_CANTADA=NO");
+
+	    // INTENTAMOS GUARDAR LOS DATOS EN EL ARCHIVO
+	    try 
+	    {
+	        // ESCRIBIMOS LA LISTA EN EL ARCHIVO DE ESTADO
+	        Files.write(archivoEstado, estado);
+
+	    } catch (IOException e) 
+	    {
+	        // MOSTRAMOS UN MENSAJE SI SE PRODUCE UN ERROR
+	        System.out.println("Error al actualizar el estado de la partida.");
+	    }
 	}
 	
 	// METODO PARA INICIAR LA PARTIDA
@@ -175,6 +228,188 @@ public class GestionEstado
 
 	        // MOSTRAMOS UN MENSAJE EN CASO DE ERROR
 	        System.out.println("Error al actualizar los numeros del sorteo.");
+	    }
+	}
+	
+	// METODO PARA FINALIZAR LA PARTIDA Y GUARDAR EL RESULTADO
+	public void finalizarPartida(String resultado)
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS ACTUALES DEL ARCHIVO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // CAMBIAMOS EL ESTADO DE LA PARTIDA
+	        estado.set(0, "ESTADO=FINALIZADA");
+
+	        // GUARDAMOS EL RESULTADO DE LA PARTIDA
+	        estado.set(3, "RESULTADO=" + resultado);
+
+	        // GUARDAMOS LOS CAMBIOS EN EL ARCHIVO
+	        Files.write(archivoEstado, estado);
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al finalizar la partida.");
+	    }
+	}
+	
+	// METODO PARA REGISTRAR UNA SOLICITUD DE LINEA
+	public void solicitarLinea(String nombre)
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // GUARDAMOS EL NOMBRE DEL JUGADOR QUE CANTA LINEA
+	        estado.set(4, "SOLICITUD_LINEA=" + nombre);
+
+	        // GUARDAMOS LOS CAMBIOS
+	        Files.write(archivoEstado, estado);
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al registrar la solicitud de linea.");
+	    }
+	}
+	
+	// METODO PARA CONSULTAR LA SOLICITUD DE LINEA
+	public String obtenerSolicitudLinea()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // DEVOLVEMOS EL NOMBRE DEL JUGADOR
+	        return estado.get(4).substring("SOLICITUD_LINEA=".length());
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al consultar la solicitud de linea.");
+	        return "";
+	    }
+	}
+	// METODO PARA ELIMINAR LA SOLICITUD DE LINEA
+	public void limpiarSolicitudLinea()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // BORRAMOS LA SOLICITUD
+	        estado.set(4, "SOLICITUD_LINEA=");
+
+	        // GUARDAMOS LOS CAMBIOS
+	        Files.write(archivoEstado, estado);
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al limpiar la solicitud de linea.");
+	    }
+	}
+	// METODO PARA REGISTRAR UNA SOLICITUD DE BINGO
+	public void solicitarBingo(String nombre)
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // GUARDAMOS EL NOMBRE DEL JUGADOR QUE CANTA BINGO
+	        estado.set(5, "SOLICITUD_BINGO=" + nombre);
+
+	        // GUARDAMOS LOS CAMBIOS
+	        Files.write(archivoEstado, estado);
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al registrar la solicitud de bingo.");
+	    }
+	}
+
+	// METODO PARA CONSULTAR LA SOLICITUD DE BINGO
+	public String obtenerSolicitudBingo()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // DEVOLVEMOS EL NOMBRE DEL JUGADOR
+	        return estado.get(5).substring("SOLICITUD_BINGO=".length());
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al consultar la solicitud de bingo.");
+	        return "";
+	    }
+	}
+
+	// METODO PARA ELIMINAR LA SOLICITUD DE BINGO
+	public void limpiarSolicitudBingo()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // BORRAMOS LA SOLICITUD
+	        estado.set(5, "SOLICITUD_BINGO=");
+
+	        // GUARDAMOS LOS CAMBIOS
+	        Files.write(archivoEstado, estado);
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al limpiar la solicitud de bingo.");
+	    }
+	}
+	
+	// METODO PARA COMPROBAR SI YA SE HA CANTADO LINEA
+	public boolean lineaCantada()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // COMPROBAMOS SI LA LINEA YA HA SIDO CANTADA
+	        return estado.get(6).equals("LINEA_CANTADA=SI");
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al consultar si se ha cantado linea.");
+	        return false;
+	    }
+	}
+
+	// METODO PARA REGISTRAR QUE YA SE HA CANTADO LINEA
+	public void registrarLineaCantada()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // INDICAMOS QUE LA LINEA YA HA SIDO CANTADA
+	        estado.set(6, "LINEA_CANTADA=SI");
+
+	        // GUARDAMOS LOS CAMBIOS
+	        Files.write(archivoEstado, estado);
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al registrar la linea cantada.");
 	    }
 	}
 }

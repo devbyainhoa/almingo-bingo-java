@@ -1,4 +1,5 @@
 package archivos;
+import archivos.GestionEstado;
 //IMPORTAMOS LAS CLASES NECESARIAS PARA TRABAJAR CON ARCHIVOS
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,41 +9,109 @@ import java.util.List; // PERMITE TRABAJAR CON LISTAS
 import logica.Carton;
 import java.util.ArrayList;
 
+
 public class GestionJugadores 
 {
 	// INDICAMOS LA RUTA DE LA CARPETA COMPARTIDA
 	private Path carpetaCompartida = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red");
-
 	// INDICAMOS LA RUTA DEL ARCHIVO DE JUGADORES
 	private Path archivoJugadores = carpetaCompartida.resolve("jugadores.txt");
 	
+
 	// METODO PARA REGISTRAR UN NUEVO JUGADOR
 	public void registrarJugador(String nombre)
 	{
+	    // COMPROBAMOS SI EL ESTADO DE LA PARTIDA ESTA INICIALIZADO
+	    GestionEstado gestionEstado = new GestionEstado();
+	    gestionEstado.inicializarEstadoSiNecesario();
+
 	    // LEEMOS LOS JUGADORES REGISTRADOS
 	    try
 	    {
 	        List<String> jugadores = Files.readAllLines(archivoJugadores);
 
-	        // GENERAMOS EL IDENTIFICADOR DEL NUEVO JUGADOR
-	        int numeroJugador = jugadores.size() + 1;
+	        // RECORREMOS LOS JUGADORES REGISTRADOS
+	        for (int i = 0; i < jugadores.size(); i++)
+	        {
+	            // SEPARAMOS LOS DATOS DEL JUGADOR
+	            String[] datos = jugadores.get(i).split(";");
+
+	            // COMPROBAMOS SI EL JUGADOR YA EXISTE
+	            if (datos[1].equals(nombre))
+	            {
+	                // ELIMINAMOS LOS DATOS DEL CARTON ANTERIOR
+	                datos[2] = "";
+
+	                // REINICIAMOS LAS MARCAS DEL CARTON
+	                datos[3] = "";
+
+	                // ACTIVAMOS AL JUGADOR
+	                datos[4] = "ACTIVO";
+
+	                // REINICIAMOS LOS ESTADOS DE LINEA Y BINGO
+	                datos[5] = "NO";
+	                datos[6] = "NO";
+
+	                // ACTUALIZAMOS LOS DATOS DEL JUGADOR
+	                jugadores.set(i, String.join(";", datos));
+
+	                // GUARDAMOS LOS CAMBIOS
+	                Files.write(archivoJugadores, jugadores);
+
+	                System.out.println("Jugador registrado correctamente.");
+	                return;
+	            }
+	        }
+
+	     // BUSCAMOS EL PRIMER IDENTIFICADOR DISPONIBLE
+	        int numeroJugador = 1;
 	        String idJugador = "jugador" + numeroJugador;
 
-	     // PREPARAMOS LOS DATOS DEL NUEVO JUGADOR
+	        // COMPROBAMOS SI EL IDENTIFICADOR YA EXISTE
+	        while (true)
+	        {
+	            boolean existeId = false;
+
+	            for (String jugador : jugadores)
+	            {
+	                String[] datos = jugador.split(";");
+
+	                if (datos[0].equals(idJugador))
+	                {
+	                    existeId = true;
+	                    break;
+	                }
+	            }
+
+	            // SI EL IDENTIFICADOR ESTA LIBRE, TERMINAMOS
+	            if (!existeId)
+	            {
+	                break;
+	            }
+
+	            // PROBAMOS CON EL SIGUIENTE NUMERO
+	            numeroJugador++;
+	            idJugador = "jugador" + numeroJugador;
+	        }
+
+	        // PREPARAMOS LOS DATOS DEL NUEVO JUGADOR
 	        String nuevoJugador = idJugador + ";" + nombre + ";;;ACTIVO;NO;NO";
 
-	        // AÑADIMOS EL NUEVO JUGADOR A LA LISTA
+	        // AÑADIMOS EL NUEVO JUGADOR
 	        jugadores.add(nuevoJugador);
 
-	        // GUARDAMOS LA LISTA ACTUALIZADA EN EL ARCHIVO
+	        // GUARDAMOS LA LISTA ACTUALIZADA
 	        Files.write(archivoJugadores, jugadores);
 
 	        System.out.println("Jugador registrado correctamente.");
 
-	    } catch (IOException e) {
+	    }
+	    catch (IOException e)
+	    {
 	        System.out.println("Error al registrar el jugador.");
 	    }
 	}
+
 	
 	// METODO PARA CONSULTAR LOS JUGADORES REGISTRADOS
 	public void consultarJugadores() 
@@ -131,6 +200,12 @@ public class GestionJugadores
 
 		} catch (IOException e) {
 		    System.out.println("Error al leer los jugadores.");
+		    return;
+		}
+		// COMPROBAMOS QUE HAY UN CARTON PARA CADA JUGADOR
+		if (cartones.length != jugadores.size()) 
+		{
+		    System.out.println("Error: la cantidad de cartones no coincide con los jugadores.");
 		    return;
 		}
 		
@@ -296,5 +371,41 @@ public class GestionJugadores
 		// DEVOLVEMOS NULL SI NO ENCONTRAMOS AL JUGADOR O HAY UN ERROR
 		return null;
 
+	}
+	
+	// METODO PARA ELIMINAR UN JUGADOR
+	public void eliminarJugador(String nombre)
+	{
+	    try
+	    {
+	        // LEEMOS LOS JUGADORES REGISTRADOS
+	        List<String> jugadores = Files.readAllLines(archivoJugadores);
+
+	        // RECORREMOS LOS JUGADORES
+	        for (int i = 0; i < jugadores.size(); i++)
+	        {
+	            String[] datos = jugadores.get(i).split(";");
+
+	            // COMPROBAMOS SI EL NOMBRE COINCIDE
+	            if (datos[1].equals(nombre))
+	            {
+	                // ELIMINAMOS EL REGISTRO DEL JUGADOR
+	                jugadores.remove(i);
+
+	                // GUARDAMOS LOS CAMBIOS
+	                Files.write(archivoJugadores, jugadores);
+
+	                System.out.println("Jugador eliminado correctamente.");
+	                return;
+	            }
+	        }
+
+	        System.out.println("No se ha encontrado al jugador.");
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al eliminar el jugador.");
+	    }
 	}
 }

@@ -1,17 +1,13 @@
 package principal;
 
 import java.util.Scanner;
+import java.io.IOException;
 //IMPORTAMOS LA CLASE PARA REALIZAR EL SORTEO
 import logica.Sorteo;
-
-// IMPORTAMOS LA CLASE PARA GESTIONAR LOS JUGADORES
 import archivos.GestionJugadores;
-
-// IMPORTAMOS LA CLASE PARA GESTIONAR EL ESTADO DE LA PARTIDA
 import archivos.GestionEstado;
-
-// IMPORTAMOS LA CLASE PARA GENERAR LOS CARTONES
 import logica.Carton;
+import archivos.GestionPreguntas;
 
 public class Central
 {
@@ -31,12 +27,12 @@ public class Central
 
 		// CREAMOS UN OBJETO PARA GESTIONAR LOS JUGADORES
 		GestionJugadores gestion = new GestionJugadores();
-
 		// CREAMOS UN OBJETO PARA GESTIONAR EL ESTADO DE LA PARTIDA
 		GestionEstado gestionEstado = new GestionEstado();
-
-		// CREAMOS UN OBJETO PARA GESTIONAR EL SORTEO
-		Sorteo sorteo = new Sorteo();
+		// CREAMOS UN OBJETO PARA GESTIONAR LAS PREGUNTAS
+		GestionPreguntas gestionPreguntas = new GestionPreguntas();
+		// CONTADOR PARA IDENTIFICAR CADA SOLICITUD
+		int idSolicitud = 0;
 
 		// REPETIMOS EL MENU HASTA QUE EL ADMINISTRADOR ELIJA SALIR
 		while (opcion != 3)
@@ -71,6 +67,9 @@ public class Central
 				}
 				else
 				{
+					// CREAMOS UN NUEVO SORTEO PARA LA PARTIDA
+					Sorteo sorteo = new Sorteo();
+					
 					System.out.println("Hay suficientes jugadores. Preparando la partida...");
 
 					// PREPARAMOS EL ESTADO INICIAL DE LA PARTIDA
@@ -123,7 +122,16 @@ public class Central
 					// GUARDAMOS LOS CARTONES EN EL ARCHIVO COMPARTIDO
 					gestion.guardarCartones(cartones);
 
-					// INICIAMOS LA PARTIDA CUANDO LOS CARTONES ESTAN PREPARADOS
+					// CARGAMOS LAS PREGUNTAS PARA LA PARTIDA
+					try {
+					    gestionPreguntas.iniciarPartida();
+					} catch (IOException e) {
+					    System.out.println("ERROR AL CARGAR LAS PREGUNTAS.");
+					    e.printStackTrace();
+					    break;
+					}
+
+					// INICIAMOS LA PARTIDA CUANDO TODO ESTA PREPARADO
 					gestionEstado.iniciarPartida();
 
 					System.out.println("¡LA PARTIDA HA COMENZADO!");
@@ -135,14 +143,42 @@ public class Central
 						//PEDIMOS QUE SAQUE EL NUMERO
 						System.out.println("Pulsa ENTER para extraer el siguiente numero...");
 						teclado.nextLine();
-						// EXTRAEMOS UN NUMERO DEL SORTEO
+						// COMPROBAMOS SI HAY SOLICITUDES DE LINEA O BINGO
+						boolean haySolicitud = !gestionEstado.obtenerSolicitudLinea().isEmpty()
+						        || !gestionEstado.obtenerSolicitudBingo().isEmpty();
+
+						if (haySolicitud) {
+
+						    try {
+						        idSolicitud = atenderSolicitudes(gestionEstado, gestionPreguntas, idSolicitud);
+
+						    } catch (IOException e) {
+						        System.out.println("ERROR AL GESTIONAR LA SOLICITUD.");
+						    } catch (InterruptedException e) {
+						        System.out.println("Se ha interrumpido la espera de la respuesta.");
+						    }
+
+						    // COMPROBAMOS SI EL BINGO HA FINALIZADO LA PARTIDA
+						    if (gestionEstado.obtenerEstado().equals("FINALIZADA")) {
+						        System.out.println(gestionEstado.obtenerResultado());
+						        break;
+						    }
+
+						    // VOLVEMOS AL INICIO DEL BUCLE ANTES DE EXTRAER OTRO NUMERO
+						    continue;
+						}
 						int numero = sorteo.extraerNumero();
-						// COMPROBAMOS SI YA SE HAN EXTRAIDO TODOS LOS NUMEROS
-						if (numero == -1)
-						{
-							System.out.println("¡SE HAN EXTRAIDO LOS 45 NUMEROS!");
-							System.out.println("EL SORTEO HA FINALIZADO.");
-							break;
+
+						if (numero == -1) {
+
+						    // FINALIZAMOS LA PARTIDA POR EMPATE
+						    gestionEstado.finalizarPartida("EMPATE: SE HAN EXTRAIDO LOS 45 NUMEROS SIN BINGO.");
+
+						    System.out.println("¡SE HAN EXTRAIDO LOS 45 NUMEROS!");
+						    System.out.println("EL SORTEO HA FINALIZADO.");
+						    System.out.println(gestionEstado.obtenerResultado());
+
+						    break;
 						}
 						// GUARDAMOS EL NUMERO EXTRAIDO EN EL ARCHIVO COMPARTIDO
 						gestionEstado.actualizarNumero(numero);
@@ -167,5 +203,104 @@ public class Central
 				break;
 			}
 		}
+	}
+	
+	// ATIENDE LAS SOLICITUDES DE LINEA Y BINGO
+	public static int atenderSolicitudes(GestionEstado gestionEstado,
+	        GestionPreguntas gestionPreguntas, int idSolicitud)
+	        throws IOException, InterruptedException {
+
+	    String nombre = "";
+	    boolean esBingo = false;
+
+	    // COMPROBAMOS SI HAY UNA SOLICITUD DE LINEA
+	    if (!gestionEstado.obtenerSolicitudLinea().isEmpty()) {
+
+	        nombre = gestionEstado.obtenerSolicitudLinea();
+
+	    } else if (!gestionEstado.obtenerSolicitudBingo().isEmpty()) {
+
+	        // SI NO HAY LINEA, COMPROBAMOS SI HAY BINGO
+	        nombre = gestionEstado.obtenerSolicitudBingo();
+	        esBingo = true;
+
+	    } else {
+
+	        // NO HAY SOLICITUDES PENDIENTES
+	        return idSolicitud;
+	    }
+
+	 // LIMPIAMOS LOS ARCHIVOS DE LA VALIDACION ANTERIOR
+	    gestionPreguntas.limpiarArchivosComunicacion();
+	    // OBTENEMOS UNA PREGUNTA ALEATORIA
+	    String[] pregunta = gestionPreguntas.obtenerPreguntaAleatoria();
+
+	    if (pregunta == null) {
+
+	        // FINALIZAMOS LA PARTIDA POR FALTA DE PREGUNTAS
+	        gestionEstado.finalizarPartida("PARTIDA FINALIZADA: NO QUEDAN PREGUNTAS DE SOSTENIBILIDAD.");
+
+	        System.out.println("NO QUEDAN PREGUNTAS DISPONIBLES.");
+	        System.out.println("LA PARTIDA HA FINALIZADO.");
+
+	        return idSolicitud;
+	    }
+
+	    // AUMENTAMOS EL IDENTIFICADOR DE LA SOLICITUD
+	    idSolicitud++;
+
+	    // PUBLICAMOS LA PREGUNTA PARA EL JUGADOR
+	    gestionPreguntas.publicarPregunta(nombre, pregunta, idSolicitud);
+
+	    System.out.println("Pregunta enviada a " + nombre);
+
+	    // ESPERAMOS LA RESPUESTA DURANTE 30 SEGUNDOS
+	    String respuesta = gestionPreguntas.esperarRespuesta(idSolicitud);
+
+	    String resultado;
+
+	    // COMPROBAMOS LA RESPUESTA
+	    if (respuesta.isEmpty()) {
+
+	        resultado = "TIEMPO_AGOTADO";
+
+	    } else if (gestionPreguntas.comprobarRespuesta(respuesta, pregunta)) {
+
+	        resultado = "CORRECTA";
+
+	    } else {
+
+	        resultado = "INCORRECTA";
+	    }
+
+	    // PUBLICAMOS EL RESULTADO PARA EL JUGADOR
+	    gestionPreguntas.publicarResultado(idSolicitud, resultado);
+
+	    // MOSTRAMOS EL RESULTADO EN CENTRAL
+	    System.out.println("RESULTADO DE " + nombre + ": " + resultado);
+
+	    // SI LA RESPUESTA ES CORRECTA, VALIDAMOS LA SOLICITUD
+	    if (resultado.equals("CORRECTA")) {
+
+	        if (esBingo) {
+
+	            gestionEstado.finalizarPartida("GANADOR: " + nombre);
+	            System.out.println("¡BINGO VALIDADO! GANADOR: " + nombre);
+
+	        } else {
+
+	            gestionEstado.registrarLineaCantada();
+	            System.out.println("¡LINEA VALIDADA!");
+	        }
+	    }
+
+	    // ELIMINAMOS LA SOLICITUD ATENDIDA
+	    if (esBingo) {
+	        gestionEstado.limpiarSolicitudBingo();
+	    } else {
+	        gestionEstado.limpiarSolicitudLinea();
+	    }
+
+	    return idSolicitud;
 	}
 }
