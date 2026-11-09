@@ -55,25 +55,30 @@ public class Carton
 		}
 	}
 
-	public void mostrarCarton () 
-	{
-		for (int fila=0;fila<FILAS;fila++) 
-		{
-			for (int col=0;col<COLS;col++) 
-			{
-				if (numMarcado[fila][col]) 
-				{
-					System.out.print(carton[fila][col] + " X ");				
-				}  else 
-				{
-					System.out.print(carton[fila][col]+" ");				
 
-				}
-				
-			}
-			System.out.println();
-		}
+	public void mostrarCarton() 
+	{
+	
+	    for (int fila = 0; fila < FILAS; fila++) {
+	
+	        for (int col = 0; col < COLS; col++) {
+	
+	            if (numMarcado[fila][col]) {
+	
+	                // MOSTRAMOS EL NUMERO MARCADO EN ROJO
+	                System.out.print("\u001B[31m" + carton[fila][col] + "\u001B[0m ");
+	
+	            } else {
+	
+	                System.out.print(carton[fila][col] + " ");
+	
+	            }
+	        }
+	
+	        System.out.println();
+	    }
 	}
+
 	
 	public boolean marcarNum(int numero)	
 	{

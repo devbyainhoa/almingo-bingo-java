@@ -4,6 +4,7 @@ package principal;
 import java.util.Scanner;
 import java.util.List;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import archivos.GestionJugadores;
 import archivos.GestionEstado;
@@ -69,6 +70,10 @@ public class Jugador {
 
         System.out.println("\n¡LA PARTIDA HA COMENZADO!");
         miCarton.mostrarCarton();
+        // INICIAMOS LA DETECCION AUTOMATICA DE NUMEROS
+        Thread hiloNumeros = new Thread(() -> detectarNumerosNuevos(gestionEstado));
+        hiloNumeros.setDaemon(true);
+        hiloNumeros.start();
 
         // MOSTRAMOS EL MENU DEL JUGADOR
         int opcion;
@@ -270,6 +275,34 @@ public class Jugador {
 
             System.out.println("Se ha interrumpido la espera.");
 
+        }
+    }
+    
+ // COMPRUEBA SI HAN SALIDO NUMEROS NUEVOS
+    public static void detectarNumerosNuevos(GestionEstado gestionEstado) 
+    {
+
+        List<Integer> numerosVistos = new ArrayList<>();
+
+        while (gestionEstado.obtenerEstado().equals("EN_CURSO")) {
+
+            List<Integer> numerosSalidos = gestionEstado.obtenerNumerosSalidos();
+
+            for (int numero : numerosSalidos) {
+
+                if (!numerosVistos.contains(numero)) {
+
+                    System.out.println("\n¡HA SALIDO EL NUMERO: " + numero + "!");
+
+                    numerosVistos.add(numero);
+                }
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                return;
+            }
         }
     }
 }
