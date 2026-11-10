@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class GestionEstado 
 {
 	// INDICAMOS LA RUTA DE LA CARPETA COMPARTIDA
-	private Path carpetaCompartida = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red");
+	private Path carpetaCompartida = Paths.get("\\\\192.168.0.119\\prueba-red");
 	// INDICAMOS LA RUTA DEL ARCHIVO DE ESTADO
 	private Path archivoEstado = carpetaCompartida.resolve("estado.txt");
 
@@ -166,6 +166,9 @@ public class GestionEstado
 
 	    // INDICAMOS QUE TODAVIA NO SE HA CANTADO LINEA
 	    estado.add("LINEA_CANTADA=NO");
+	    
+	 // INICIALIZAMOS EL AVISO GENERAL DE LA PARTIDA
+	    estado.add("AVISO_PARTIDA=");
 
 	    // INTENTAMOS GUARDAR LOS DATOS EN EL ARCHIVO
 	    try 
@@ -410,6 +413,45 @@ public class GestionEstado
 	    catch (IOException e)
 	    {
 	        System.out.println("Error al registrar la linea cantada.");
+	    }
+	}
+	// METODO PARA PUBLICAR UN AVISO GENERAL DE LA PARTIDA
+	public void publicarAviso(String aviso)
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS ACTUALES DEL ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // GUARDAMOS EL AVISO GENERAL
+	        estado.set(7, "AVISO_PARTIDA=" + aviso);
+
+	        // GUARDAMOS LOS CAMBIOS
+	        Files.write(archivoEstado, estado);
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al publicar el aviso de la partida.");
+	    }
+	}
+
+	// METODO PARA CONSULTAR EL AVISO GENERAL DE LA PARTIDA
+	public String obtenerAviso()
+	{
+	    try
+	    {
+	        // LEEMOS LOS DATOS DEL ARCHIVO DE ESTADO
+	        List<String> estado = Files.readAllLines(archivoEstado);
+
+	        // DEVOLVEMOS EL AVISO PUBLICADO
+	        return estado.get(7).substring("AVISO_PARTIDA=".length());
+
+	    }
+	    catch (IOException e)
+	    {
+	        System.out.println("Error al consultar el aviso de la partida.");
+	        return "";
 	    }
 	}
 }

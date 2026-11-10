@@ -9,11 +9,11 @@ import java.util.ArrayList;
 
 public class GestionPreguntas {
 	
-	private static final Path RUTA_PREGUNTAS = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red\\preguntas.txt");
+	private static final Path RUTA_PREGUNTAS = Paths.get("\\\\192.168.0.119\\prueba-red\\preguntas.txt");
 
-	private static final Path RUTA_PREGUNTA_ACTUAL = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red\\preguntaActual.txt");
+	private static final Path RUTA_PREGUNTA_ACTUAL = Paths.get("\\\\192.168.0.119\\prueba-red\\preguntaActual.txt");
 
-	private static final Path RUTA_RESPUESTA = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red\\respuesta.txt");
+	private static final Path RUTA_RESPUESTA = Paths.get("\\\\192.168.0.119\\prueba-red\\respuesta.txt");
 	// LISTA DE PREGUNTAS DISPONIBLES DURANTE LA PARTIDA
 	private List<String[]> preguntasDisponibles = new ArrayList<>();
 	

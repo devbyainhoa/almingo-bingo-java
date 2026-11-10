@@ -4,57 +4,73 @@ package logica;
 public class Carton 
 {
 	public static final int FILAS=3;
-	public static final int COLS=4;
+	public static final int COLS=5;
 
 	int[][] carton= new int [FILAS][COLS];
 	boolean[][] numMarcado=new boolean [FILAS][COLS];
 
 	public void llenarCarton() {
 
-		for (int fila = 0; fila < FILAS; fila++) 
-		{
+	    for (int fila = 0; fila < FILAS; fila++) {
 
-			for (int col = 0; col < COLS; col++) 
-			{
-				boolean repetido;
+	        for (int col = 0; col < COLS; col++) {
 
-				do {
-					repetido = false;
+	            boolean repetido;
 
-					int numero = (int)(Math.random() * 45 + 1);
+	            // CALCULAMOS EL RANGO DE NUMEROS DE CADA COLUMNA
+	            int minimo = (col == 0) ? 1 : col * 10;
+	            int maximo = (col == 0) ? 9 : col * 10 + 9;
 
-					for (int f = 0; f <= fila; f++) {
+	            do {
 
-						int limiteColumnas;
+	                repetido = false;
 
-						if (f < fila) 
-						{
-							limiteColumnas = COLS;
-						} else 
-						{
-							limiteColumnas = col;
-						}
+	                int numero = (int)(Math.random() * (maximo - minimo + 1) + minimo);
 
-						for (int c = 0; c < limiteColumnas; c++) 
-						{
+	                // COMPROBAMOS QUE EL NUMERO NO ESTE REPETIDO
+	                for (int f = 0; f <= fila; f++) {
 
-							if (carton[f][c] == numero) 
-							{
-								repetido = true;
-							}
-						}
-					}
+	                    int limiteColumnas;
 
-					if (!repetido) 
-					{
-						carton[fila][col] = numero;
-					}
+	                    if (f < fila) {
+	                        limiteColumnas = COLS;
+	                    } else {
+	                        limiteColumnas = col;
+	                    }
 
-				} while (repetido);
-			}
-		}
+	                    for (int c = 0; c < limiteColumnas; c++) {
+
+	                        if (carton[f][c] == numero) {
+	                            repetido = true;
+	                        }
+	                    }
+	                }
+
+	                if (!repetido) {
+	                    carton[fila][col] = numero;
+	                }
+
+	            } while (repetido);
+	        }
+	    }
+
+	    // ORDENAMOS LOS NUMEROS DE CADA COLUMNA DE MENOR A MAYOR
+	    for (int col = 0; col < COLS; col++) {
+
+	        for (int fila = 0; fila < FILAS - 1; fila++) {
+
+	            for (int f = fila + 1; f < FILAS; f++) {
+
+	                if (carton[fila][col] > carton[f][col]) {
+
+	                    int auxiliar = carton[fila][col];
+	                    carton[fila][col] = carton[f][col];
+	                    carton[f][col] = auxiliar;
+	                }
+	            }
+	        }
+	    }
 	}
-
 
 	public void mostrarCarton() 
 	{

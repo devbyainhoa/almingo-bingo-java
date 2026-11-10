@@ -137,7 +137,7 @@ public class Central
 					System.out.println("¡LA PARTIDA HA COMENZADO!");
 					// LIMPIAMOS EL SALTO DE LINEA PENDIENTE DEL TECLADO
 					teclado.nextLine();
-					// REPETIMOS EL SORTEO HASTA EXTRAER LOS 45 NUMEROS
+					// REPETIMOS EL SORTEO HASTA EXTRAER LOS 49 NUMEROS
 					while (true)
 					{
 						//PEDIMOS QUE SAQUE EL NUMERO
@@ -172,9 +172,9 @@ public class Central
 						if (numero == -1) {
 
 						    // FINALIZAMOS LA PARTIDA POR EMPATE
-						    gestionEstado.finalizarPartida("EMPATE: SE HAN EXTRAIDO LOS 45 NUMEROS SIN BINGO.");
+						    gestionEstado.finalizarPartida("EMPATE: SE HAN EXTRAIDO LOS 49 NUMEROS SIN BINGO.");
 
-						    System.out.println("¡SE HAN EXTRAIDO LOS 45 NUMEROS!");
+						    System.out.println("¡SE HAN EXTRAIDO LOS 49 NUMEROS!");
 						    System.out.println("EL SORTEO HA FINALIZADO.");
 						    System.out.println(gestionEstado.obtenerResultado());
 
@@ -284,16 +284,27 @@ public class Central
 
 	        if (esBingo) {
 
+	           
+
+	            // PUBLICAMOS EL AVISO DE BINGO
+	            gestionEstado.publicarAviso("¡BINGO! " + nombre + " HA GANADO LA PARTIDA.");
+	            
+	            // FINALIZAMOS LA PARTIDA
+
 	            gestionEstado.finalizarPartida("GANADOR: " + nombre);
+
 	            System.out.println("¡BINGO VALIDADO! GANADOR: " + nombre);
 
 	        } else {
 
 	            gestionEstado.registrarLineaCantada();
+
+	            // PUBLICAMOS EL AVISO DE LINEA
+	            gestionEstado.publicarAviso("¡LINEA VALIDADA! " + nombre + " HA CONSEGUIDO LINEA.");
+
 	            System.out.println("¡LINEA VALIDADA!");
 	        }
 	    }
-
 	    // ELIMINAMOS LA SOLICITUD ATENDIDA
 	    if (esBingo) {
 	        gestionEstado.limpiarSolicitudBingo();

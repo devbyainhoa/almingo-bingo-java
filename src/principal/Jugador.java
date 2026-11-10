@@ -14,295 +14,315 @@ import archivos.GestionPreguntas;
 
 public class Jugador {
 
-    public static void main(String[] args) {
-
-        // CREAMOS EL SCANNER PARA LEER LOS DATOS DEL TECLADO
-        Scanner teclado = new Scanner(System.in);
+	public static void main(String[] args) {
 
-        // INICIAMOS EL MENU DEL JUGADOR
-        menuJugador(teclado);
-    }
-    
-
-    public static void menuJugador(Scanner teclado) {
+		// CREAMOS EL SCANNER PARA LEER LOS DATOS DEL TECLADO
+		Scanner teclado = new Scanner(System.in);
 
-        // CREAMOS LOS OBJETOS PARA GESTIONAR JUGADORES Y ESTADO
-        GestionJugadores gestion = new GestionJugadores();
-        GestionEstado gestionEstado = new GestionEstado();
-        GestionPreguntas gestionPreguntas = new GestionPreguntas();
-        
-     // COMPROBAMOS SI EL ARCHIVO DE ESTADO NECESITA INICIALIZARSE
-        gestionEstado.inicializarEstadoSiNecesario();
+		// INICIAMOS EL MENU DEL JUGADOR
+		menuJugador(teclado);
+	}
 
-        // PEDIMOS EL NOMBRE DEL JUGADOR
-        System.out.println("===== MODO JUGADOR =====");
-        System.out.print("Introduce tu nombre: ");
-        String nombre = teclado.next();
 
-     // COMPROBAMOS SI HAY UNA PARTIDA EN CURSO
-        if (gestionEstado.obtenerEstado().equals("EN_CURSO")) {
-            System.out.println("No puedes registrarte porque hay una partida en curso.");
-            return;
-        }
+	public static void menuJugador(Scanner teclado) {
 
-        // COMPROBAMOS SI EL JUGADOR YA ESTA REGISTRADO
-        if (gestion.existeJugador(nombre)) {
-            System.out.println("Jugador encontrado.");
-        }
+		// CREAMOS LOS OBJETOS PARA GESTIONAR JUGADORES Y ESTADO
+		GestionJugadores gestion = new GestionJugadores();
+		GestionEstado gestionEstado = new GestionEstado();
+		GestionPreguntas gestionPreguntas = new GestionPreguntas();
 
-        // REGISTRAMOS O ACTUALIZAMOS LOS DATOS DEL JUGADOR
-        gestion.registrarJugador(nombre);
+		// COMPROBAMOS SI EL ARCHIVO DE ESTADO NECESITA INICIALIZARSE
+		gestionEstado.inicializarEstadoSiNecesario();
 
-        // ESPERAMOS HASTA QUE EL CENTRAL INICIE LA PARTIDA
-        System.out.println("Esperando a que el central inicie la partida...");
+		// PEDIMOS EL NOMBRE DEL JUGADOR
+		System.out.println("===== MODO JUGADOR =====");
+		System.out.print("Introduce tu nombre: ");
+		String nombre = teclado.next();
 
-        while (gestionEstado.obtenerEstado().equals("ESPERANDO")) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                System.out.println("Se ha interrumpido la espera.");
-                return;
-            }
-        }
+		// COMPROBAMOS SI HAY UNA PARTIDA EN CURSO
+		if (gestionEstado.obtenerEstado().equals("EN_CURSO")) {
+			System.out.println("No puedes registrarte porque hay una partida en curso.");
+			return;
+		}
 
-        // RECUPERAMOS Y MOSTRAMOS EL CARTON DEL JUGADOR
-        Carton miCarton = gestion.obtenerCarton(nombre);
+		// COMPROBAMOS SI EL JUGADOR YA ESTA REGISTRADO
+		if (gestion.existeJugador(nombre)) {
+			System.out.println("Jugador encontrado.");
+		}
 
-        System.out.println("\n¡LA PARTIDA HA COMENZADO!");
-        miCarton.mostrarCarton();
-        // INICIAMOS LA DETECCION AUTOMATICA DE NUMEROS
-        Thread hiloNumeros = new Thread(() -> detectarNumerosNuevos(gestionEstado));
-        hiloNumeros.setDaemon(true);
-        hiloNumeros.start();
+		// REGISTRAMOS O ACTUALIZAMOS LOS DATOS DEL JUGADOR
+		gestion.registrarJugador(nombre);
 
-        // MOSTRAMOS EL MENU DEL JUGADOR
-        int opcion;
+		// ESPERAMOS HASTA QUE EL CENTRAL INICIE LA PARTIDA
+		System.out.println("Esperando a que el central inicie la partida...");
 
-        do {
-        	// COMPROBAMOS SI CENTRAL HA FINALIZADO LA PARTIDA
-        	if (gestionEstado.obtenerEstado().equals("FINALIZADA")) {
+		while (gestionEstado.obtenerEstado().equals("ESPERANDO")) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.out.println("Se ha interrumpido la espera.");
+				return;
+			}
+		}
 
-        	    System.out.println("\n===== PARTIDA FINALIZADA =====");
-        	    System.out.println(gestionEstado.obtenerResultado());
+		// RECUPERAMOS Y MOSTRAMOS EL CARTON DEL JUGADOR
+		Carton miCarton = gestion.obtenerCarton(nombre);
 
-        	    break;
-        	}
-            System.out.println("\n===== MENU DEL JUGADOR =====");
-            System.out.println("1. MARCAR NUMERO");
-            System.out.println("2. CANTAR LINEA");
-            System.out.println("3. CANTAR BINGO");
-            System.out.println("4. ABANDONAR PARTIDA");
-            System.out.print("Selecciona una opcion: ");
+		System.out.println("\n¡LA PARTIDA HA COMENZADO!");
+		miCarton.mostrarCarton();
+		// INICIAMOS LA DETECCION AUTOMATICA DE NUMEROS
+		Thread hiloNumeros = new Thread(() -> detectarNumerosNuevos(gestionEstado));
+		hiloNumeros.setDaemon(true);
+		hiloNumeros.start();
 
-            opcion = teclado.nextInt();
+		// MOSTRAMOS EL MENU DEL JUGADOR
+		int opcion;
 
-            switch (opcion) {
+		do {
+			// COMPROBAMOS SI CENTRAL HA FINALIZADO LA PARTIDA
+			if (gestionEstado.obtenerEstado().equals("FINALIZADA")) {
 
-                case 1:
+				System.out.println("\n===== PARTIDA FINALIZADA =====");
+				System.out.println(gestionEstado.obtenerResultado());
 
-                    // PEDIMOS EL NUMERO QUE QUIERE MARCAR
-                    System.out.print("Introduce el numero que quieres marcar: ");
-                    int numero = teclado.nextInt();
+				break;
+			}
+			System.out.println("\n===== MENU DEL JUGADOR =====");
+			System.out.println("1. MARCAR NUMERO");
+			System.out.println("2. CANTAR LINEA");
+			System.out.println("3. CANTAR BINGO");
+			System.out.println("4. ABANDONAR PARTIDA");
+			System.out.print("Selecciona una opcion: ");
 
-                    // CONSULTAMOS LOS NUMEROS QUE HAN SALIDO
-                    List<Integer> numerosSalidos = gestionEstado.obtenerNumerosSalidos();
+			opcion = teclado.nextInt();
 
-                    // COMPROBAMOS SI EL NUMERO HA SIDO EXTRAIDO
-                    if (numerosSalidos.contains(numero)) {
+			switch (opcion) {
 
-                        // MARCAMOS EL NUMERO EN EL CARTON
-                        if (miCarton.marcarNum(numero)) {
+			case 1:
 
-                            System.out.println("Numero marcado correctamente.");
+				// PEDIMOS EL NUMERO QUE QUIERE MARCAR
+				System.out.print("Introduce el numero que quieres marcar: ");
+				int numero = teclado.nextInt();
 
-                            // GUARDAMOS LAS MARCAS EN EL ARCHIVO
-                            gestion.guardarMarcas(nombre, miCarton);
+				// CONSULTAMOS LOS NUMEROS QUE HAN SALIDO
+				List<Integer> numerosSalidos = gestionEstado.obtenerNumerosSalidos();
 
-                            // MOSTRAMOS EL CARTON ACTUALIZADO
-                            miCarton.mostrarCarton();
+				// COMPROBAMOS SI EL NUMERO HA SIDO EXTRAIDO
+				if (numerosSalidos.contains(numero)) {
 
-                        } else {
-                            System.out.println("Ese numero no esta en tu carton o ya estaba marcado.");
-                        }
+					// MARCAMOS EL NUMERO EN EL CARTON
+					if (miCarton.marcarNum(numero)) {
 
-                    } else {
-                        System.out.println("Ese numero todavia no ha salido.");
-                    }
+						System.out.println("Numero marcado correctamente.");
 
-                    break;
+						// GUARDAMOS LAS MARCAS EN EL ARCHIVO
+						gestion.guardarMarcas(nombre, miCarton);
 
-                case 2:
+						// MOSTRAMOS EL CARTON ACTUALIZADO
+						miCarton.mostrarCarton();
 
-                    // COMPROBAMOS SI YA SE HA CANTADO UNA LINEA
-                    if (gestionEstado.lineaCantada())
-                    {
-                        System.out.println("La linea ya ha sido cantada en esta partida.");
+					} else {
+						System.out.println("Ese numero no esta en tu carton o ya estaba marcado.");
+					}
 
-                    } else {
+				} else {
+					System.out.println("Ese numero todavia no ha salido.");
+				}
 
-                        // COMPROBAMOS SI EL CARTON TIENE UNA FILA COMPLETA
-                        if (miCarton.comprobarLinea())
-                        {
-                            // REGISTRAMOS LA SOLICITUD DE LINEA
-                            gestionEstado.solicitarLinea(nombre);
+				break;
 
-                            System.out.println("Solicitud de linea enviada al central.");
-                            System.out.println("Esperando la validacion de sostenibilidad...");
-                         // MOSTRAMOS LA PREGUNTA Y RECOGEMOS LA RESPUESTA
-                            responderPregunta(teclado, gestionPreguntas, nombre);
+			case 2:
 
-                        } else {
+				// COMPROBAMOS SI YA SE HA CANTADO UNA LINEA
+				if (gestionEstado.lineaCantada())
+				{
+					System.out.println("La linea ya ha sido cantada en esta partida.");
 
-                            System.out.println("Todavia no tienes ninguna linea completa.");
-                        }
-                    }
+				} else {
 
-                    break;
+					// COMPROBAMOS SI EL CARTON TIENE UNA FILA COMPLETA
+					if (miCarton.comprobarLinea())
+					{
+						// REGISTRAMOS LA SOLICITUD DE LINEA
+						gestionEstado.solicitarLinea(nombre);
 
-                case 3:
+						System.out.println("Solicitud de linea enviada al central.");
+						System.out.println("Esperando la validacion de sostenibilidad...");
+						// MOSTRAMOS LA PREGUNTA Y RECOGEMOS LA RESPUESTA
+						responderPregunta(teclado, gestionPreguntas, nombre);
 
-                    // COMPROBAMOS SI EL CARTON TIENE TODOS LOS NUMEROS MARCADOS
-                    if (miCarton.comprobarBingo())
-                    {
-                        // REGISTRAMOS LA SOLICITUD DE BINGO
-                        gestionEstado.solicitarBingo(nombre);
+					} else {
 
-                        System.out.println("Solicitud de bingo enviada al central.");
-                        System.out.println("Esperando la validacion de sostenibilidad...");
-                     // MOSTRAMOS LA PREGUNTA Y RECOGEMOS LA RESPUESTA
-                        responderPregunta(teclado, gestionPreguntas, nombre);
+						System.out.println("Todavia no tienes ninguna linea completa.");
+					}
+				}
 
-                    } else {
+				break;
 
-                        System.out.println("Todavia no tienes todos los numeros marcados.");
-                    }
+			case 3:
 
-                    break;
+				// COMPROBAMOS SI EL CARTON TIENE TODOS LOS NUMEROS MARCADOS
+				if (miCarton.comprobarBingo())
+				{
+					// REGISTRAMOS LA SOLICITUD DE BINGO
+					gestionEstado.solicitarBingo(nombre);
 
-                case 4:
+					System.out.println("Solicitud de bingo enviada al central.");
+					System.out.println("Esperando la validacion de sostenibilidad...");
+					// MOSTRAMOS LA PREGUNTA Y RECOGEMOS LA RESPUESTA
+					responderPregunta(teclado, gestionPreguntas, nombre);
 
-                    // EL JUGADOR ABANDONA LA PARTIDA
-                    gestion.eliminarJugador(nombre);
+				} else {
 
-                    System.out.println("Has abandonado la partida.");
+					System.out.println("Todavia no tienes todos los numeros marcados.");
+				}
 
-                    break;
+				break;
 
-                default:
+			case 4:
 
-                    System.out.println("Opcion no valida.");
-            }
+				// EL JUGADOR ABANDONA LA PARTIDA
+				gestion.eliminarJugador(nombre);
 
-        } while (opcion != 4);
+				System.out.println("Has abandonado la partida.");
 
-    }
-    
- // MUESTRA LA PREGUNTA DE SOSTENIBILIDAD AL JUGADOR
-    public static void responderPregunta(Scanner teclado, GestionPreguntas gestionPreguntas, String nombre) {
+				break;
 
-        try {
+			default:
 
-            String[] pregunta = null;
-         // CREAMOS EL OBJETO PARA CONSULTAR EL ESTADO DE LA PARTIDA
-            GestionEstado gestionEstado = new GestionEstado();
+				System.out.println("Opcion no valida.");
+			}
 
-            while (pregunta == null) {
+		} while (opcion != 4);
 
-                // COMPROBAMOS SI CENTRAL HA FINALIZADO LA PARTIDA
-                if (gestionEstado.obtenerEstado().equals("FINALIZADA")) {
+	}
 
-                    System.out.println("\n" + gestionEstado.obtenerResultado());
-                    return;
-                }
+	// MUESTRA LA PREGUNTA DE SOSTENIBILIDAD AL JUGADOR
+	public static void responderPregunta(Scanner teclado, GestionPreguntas gestionPreguntas, String nombre) {
 
-                // COMPROBAMOS SI CENTRAL HA PUBLICADO LA PREGUNTA
-                pregunta = gestionPreguntas.leerPreguntaActual(nombre);
+		try {
 
-                Thread.sleep(500);
-            }
+			String[] pregunta = null;
+			// CREAMOS EL OBJETO PARA CONSULTAR EL ESTADO DE LA PARTIDA
+			GestionEstado gestionEstado = new GestionEstado();
 
-            // MOSTRAMOS LA PREGUNTA Y SUS OPCIONES
-            System.out.println("\n===== PREGUNTA DE SOSTENIBILIDAD =====");
-            System.out.println(pregunta[2]);
-            System.out.println("A) " + pregunta[3]);
-            System.out.println("B) " + pregunta[4]);
-            System.out.println("C) " + pregunta[5]);
-         // PEDIMOS LA RESPUESTA AL JUGADOR
-            String respuesta;
+			while (pregunta == null) {
 
-            do {
-                System.out.print("Introduce tu respuesta (A, B o C): ");
-                respuesta = teclado.next().toUpperCase();
+				// COMPROBAMOS SI CENTRAL HA FINALIZADO LA PARTIDA
+				if (gestionEstado.obtenerEstado().equals("FINALIZADA")) {
 
-                if (!respuesta.equals("A") && !respuesta.equals("B") && !respuesta.equals("C")) {
-                    System.out.println("Respuesta no valida. Introduce A, B o C.");
-                }
+					System.out.println("\n" + gestionEstado.obtenerResultado());
+					return;
+				}
 
-            } while (!respuesta.equals("A") && !respuesta.equals("B") && !respuesta.equals("C"));
+				// COMPROBAMOS SI CENTRAL HA PUBLICADO LA PREGUNTA
+				pregunta = gestionPreguntas.leerPreguntaActual(nombre);
 
-            // OBTENEMOS EL ID DE LA SOLICITUD
-            int idSolicitud = Integer.parseInt(pregunta[0]);
+				Thread.sleep(500);
+			}
 
-            // ENVIAMOS LA RESPUESTA A CENTRAL
-            gestionPreguntas.enviarRespuesta(idSolicitud, respuesta);
+			// MOSTRAMOS LA PREGUNTA Y SUS OPCIONES
+			System.out.println("\n===== PREGUNTA DE SOSTENIBILIDAD =====");
+			System.out.println(pregunta[2]);
+			System.out.println("A) " + pregunta[3]);
+			System.out.println("B) " + pregunta[4]);
+			System.out.println("C) " + pregunta[5]);
+			// PEDIMOS LA RESPUESTA AL JUGADOR
+			String respuesta;
 
-            System.out.println("Respuesta enviada al central.");
-            
-         // ESPERAMOS A QUE CENTRAL PUBLIQUE EL RESULTADO
-            String resultado = "";
+			do {
+				System.out.print("Introduce tu respuesta (A, B o C): ");
+				respuesta = teclado.next().toUpperCase();
 
-            while (resultado.isEmpty()) {
-                resultado = gestionPreguntas.leerResultado(idSolicitud);
-                Thread.sleep(500);
-            }
+				if (!respuesta.equals("A") && !respuesta.equals("B") && !respuesta.equals("C")) {
+					System.out.println("Respuesta no valida. Introduce A, B o C.");
+				}
 
-            // MOSTRAMOS EL RESULTADO AL JUGADOR
-            if (resultado.equals("CORRECTA")) {
-                System.out.println("¡Respuesta correcta! Solicitud validada.");
+			} while (!respuesta.equals("A") && !respuesta.equals("B") && !respuesta.equals("C"));
 
-            } else if (resultado.equals("INCORRECTA")) {
-                System.out.println("Respuesta incorrecta. Solicitud rechazada.");
+			// OBTENEMOS EL ID DE LA SOLICITUD
+			int idSolicitud = Integer.parseInt(pregunta[0]);
 
-            } else if (resultado.equals("TIEMPO_AGOTADO")) {
-                System.out.println("Se ha agotado el tiempo. Solicitud rechazada.");
-            }
+			// ENVIAMOS LA RESPUESTA A CENTRAL
+			gestionPreguntas.enviarRespuesta(idSolicitud, respuesta);
 
-        } catch (IOException e) {
+			System.out.println("Respuesta enviada al central.");
 
-            System.out.println("ERROR AL LEER LA PREGUNTA.");
+			// ESPERAMOS A QUE CENTRAL PUBLIQUE EL RESULTADO
+			String resultado = "";
 
-        } catch (InterruptedException e) {
+			while (resultado.isEmpty()) {
+				resultado = gestionPreguntas.leerResultado(idSolicitud);
+				Thread.sleep(500);
+			}
 
-            System.out.println("Se ha interrumpido la espera.");
+			// MOSTRAMOS EL RESULTADO AL JUGADOR
+			if (resultado.equals("CORRECTA")) {
+				System.out.println("¡Respuesta correcta! Solicitud validada.");
 
-        }
-    }
-    
- // COMPRUEBA SI HAN SALIDO NUMEROS NUEVOS
-    public static void detectarNumerosNuevos(GestionEstado gestionEstado) 
-    {
+			} else if (resultado.equals("INCORRECTA")) {
+				System.out.println("Respuesta incorrecta. Solicitud rechazada.");
 
-        List<Integer> numerosVistos = new ArrayList<>();
+			} else if (resultado.equals("TIEMPO_AGOTADO")) {
+				System.out.println("Se ha agotado el tiempo. Solicitud rechazada.");
+			}
 
-        while (gestionEstado.obtenerEstado().equals("EN_CURSO")) {
+		} catch (IOException e) {
 
-            List<Integer> numerosSalidos = gestionEstado.obtenerNumerosSalidos();
+			System.out.println("ERROR AL LEER LA PREGUNTA.");
 
-            for (int numero : numerosSalidos) {
+		} catch (InterruptedException e) {
 
-                if (!numerosVistos.contains(numero)) {
+			System.out.println("Se ha interrumpido la espera.");
 
-                    System.out.println("\n¡HA SALIDO EL NUMERO: " + numero + "!");
+		}
+	}
 
-                    numerosVistos.add(numero);
-                }
-            }
+	// COMPRUEBA SI HAN SALIDO NUMEROS NUEVOS Y SI HAY AVISOS
+	public static void detectarNumerosNuevos(GestionEstado gestionEstado) 
+	{
+		List<Integer> numerosVistos = new ArrayList<>();
+		String avisoVisto = "";
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                return;
-            }
-        }
-    }
+		while (true) {
+
+			String estado = gestionEstado.obtenerEstado();
+
+			// CONSULTAMOS LOS NUMEROS QUE HAN SALIDO
+			List<Integer> numerosSalidos = gestionEstado.obtenerNumerosSalidos();
+
+			for (int numero : numerosSalidos) {
+
+				if (!numerosVistos.contains(numero)) {
+
+					System.out.println("\n¡HA SALIDO EL NUMERO: " + numero + "!");
+
+					numerosVistos.add(numero);
+				}
+			}
+
+			// CONSULTAMOS SI HAY UN AVISO NUEVO
+			String aviso = gestionEstado.obtenerAviso();
+
+			if (!aviso.isEmpty() && !aviso.equals(avisoVisto)) {
+
+				System.out.println("\n================================");
+				System.out.println(aviso);
+				System.out.println("================================");
+
+				avisoVisto = aviso;
+			}
+
+			// COMPROBAMOS SI LA PARTIDA HA FINALIZADO
+			if (estado.equals("FINALIZADA") && !aviso.isEmpty()) {
+				return;
+			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				return;
+			}
+		}
+	}
 }

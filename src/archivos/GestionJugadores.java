@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class GestionJugadores 
 {
 	// INDICAMOS LA RUTA DE LA CARPETA COMPARTIDA
-	private Path carpetaCompartida = Paths.get("C:\\Users\\DAM1\\Desktop\\ALMINGO\\prueba-red");
+	private Path carpetaCompartida = Paths.get("\\\\192.168.0.119\\prueba-red");
 	// INDICAMOS LA RUTA DEL ARCHIVO DE JUGADORES
 	private Path archivoJugadores = carpetaCompartida.resolve("jugadores.txt");
 	
@@ -29,7 +29,6 @@ public class GestionJugadores
 	    try
 	    {
 	        List<String> jugadores = Files.readAllLines(archivoJugadores);
-
 	        // RECORREMOS LOS JUGADORES REGISTRADOS
 	        for (int i = 0; i < jugadores.size(); i++)
 	        {
@@ -236,7 +235,7 @@ public class GestionJugadores
 		 // GUARDAMOS LOS NUMEROS DEL CARTON EN LOS DATOS DEL JUGADOR
 		    datos[2] = numerosCarton;
 		 // INICIALIZAMOS LAS 12 CASILLAS COMO NO MARCADAS
-		    datos[3] = "000000000000";
+		    datos[3] = "000000000000000";
 		    
 		    jugadores.set(i, String.join(";", datos));
 
